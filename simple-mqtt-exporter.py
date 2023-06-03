@@ -7,12 +7,13 @@ import argparse
 import importlib
 
 def on_message(client, userdata, msg):
-  global dataReceived
+  global data_received
   payload = str(msg.payload.decode("utf-8","ignore"))
   if config.debug:
     print(f'{msg.topic}: {payload}')
   if msg.topic in config.mqtt_topics:
-    dataReceived = True
+    data_received = True
+    received_messages.labels(msg.topic).inc()
     gauges[msg.topic].set(float(payload))
     updated.set(time.time())
 
@@ -38,24 +39,25 @@ if __name__ == '__main__':
     name = v.get('name')
     if not name:
       name = t.split('/')[-1:][0]
-    helptext = v.get('help')
-    if not helptext:
-      helptext = t
+    description = v.get('help')
+    if not description:
+      description = t
     labels = v.get('labels', {})
     if not name in parents:
-      parents[name] = prom.Gauge(name, helptext, labels.keys())
+      parents[name] = prom.Gauge(name, description, labels.keys())
     if labels:
       gauges[t] = parents[name].labels(**labels)
     else:
       gauges[t] = parents[name]
   up = prom.Gauge('up', 'client status')
   updated = prom.Gauge('updated', 'data last updated in epoch')
+  received_messages = prom.Counter('received_messages', 'received messages per topic', ['topic'])
   prom.start_http_server(config.http_port)
 
   while True:
-    dataReceived = False
+    data_received = False
     time.sleep(10)
-    if dataReceived:
+    if data_received:
       up.set(1)
     else:
       up.set(0)
