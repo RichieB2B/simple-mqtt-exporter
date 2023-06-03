@@ -3,7 +3,8 @@ import sys
 import time
 import paho.mqtt.client as mqtt
 import prometheus_client as prom
-import config
+import argparse
+import importlib
 
 def on_message(client, userdata, msg):
   global dataReceived
@@ -26,6 +27,10 @@ def mqtt_init():
   return client
 
 if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument("-c", "--config", help="config file to load", default="config")
+  args = parser.parse_args()
+  config = importlib.import_module(args.config)
   mqtt_init()
   parents = {}
   gauges = {}
