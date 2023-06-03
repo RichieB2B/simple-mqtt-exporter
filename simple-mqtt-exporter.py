@@ -7,13 +7,14 @@ import argparse
 import importlib
 
 def on_message(client, userdata, msg):
-  global data_received
+  global data_received, counter
   payload = str(msg.payload.decode("utf-8","ignore"))
   if config.debug:
     print(f'{msg.topic}: {payload}')
   if msg.topic in config.mqtt_topics:
     data_received = True
-    received_messages.labels(msg.topic).inc()
+    counter[t] += 1
+    received_messages.labels(msg.topic).set(counter[t])
     gauges[msg.topic].set(float(payload))
     updated.set(time.time())
 
@@ -33,9 +34,11 @@ if __name__ == '__main__':
   args = parser.parse_args()
   config = importlib.import_module(args.config)
   mqtt_init()
+  counter = {}
   parents = {}
   gauges = {}
   for t,v in config.mqtt_topics.items():
+    counter[t] = 0
     parts = t.split('/')
     name = v.get('name')
     if not name:
@@ -52,7 +55,7 @@ if __name__ == '__main__':
     gauges[t] = parents[name].labels(**labels)
   up = prom.Gauge('up', 'client status')
   updated = prom.Gauge('updated', 'data last updated in epoch')
-  received_messages = prom.Counter('received_messages', 'received messages per topic', ['topic'])
+  received_messages = prom.Gauge('received_messages', 'received messages per topic', ['topic'])
   prom.start_http_server(config.http_port)
 
   while True:
