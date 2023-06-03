@@ -43,12 +43,10 @@ if __name__ == '__main__':
     if not description:
       description = t
     labels = v.get('labels', {})
+    labels['topic'] = t
     if not name in parents:
       parents[name] = prom.Gauge(name, description, labels.keys())
-    if labels:
-      gauges[t] = parents[name].labels(**labels)
-    else:
-      gauges[t] = parents[name]
+    gauges[t] = parents[name].labels(**labels)
   up = prom.Gauge('up', 'client status')
   updated = prom.Gauge('updated', 'data last updated in epoch')
   received_messages = prom.Counter('received_messages', 'received messages per topic', ['topic'])
