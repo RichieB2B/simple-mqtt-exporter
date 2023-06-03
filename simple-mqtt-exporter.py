@@ -1,10 +1,27 @@
 #!/usr/bin/env python3
+import os
 import sys
 import time
 import paho.mqtt.client as mqtt
 import prometheus_client as prom
 import argparse
 import importlib
+
+def on_connect(client, userdata, flags, rc):
+  codes = [
+    'Connection successful',
+    'Connection refused – incorrect protocol version',
+    'Connection refused – invalid client identifier',
+    'Connection refused – server unavailable',
+    'Connection refused – bad username or password',
+    'Connection refused – not authorised',
+  ]
+  if rc!=0:
+    if rc > 0 and rc < 6:
+      print(codes[rc])
+    else:
+      print(f'Bad connection, unknown return code: {rc}')
+    os._exit(1)
 
 def on_message(client, userdata, msg):
   global data_received, succes, error
@@ -29,6 +46,7 @@ def mqtt_init():
   client = mqtt.Client()
   if hasattr(config, 'mqtt_username') and hasattr(config, 'mqtt_password'):
     client.username_pw_set(config.mqtt_username, config.mqtt_password)
+  client.on_connect=on_connect
   client.on_message=on_message
   client.connect(config.mqtt_broker)
   client.subscribe(config.mqtt_twc_topic)
