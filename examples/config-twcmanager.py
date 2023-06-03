@@ -20,14 +20,14 @@ mqtt_topics = {
   'TWC/all/totalAmpsInUse': {'help': 'Amps in use by all TWCs'},
   'TWC/4242/ampsMax': {'help': 'maximum Amps for this TWC'},
   'TWC/4242/ampsInUse': {'help': 'Amps in use by this TWC'},
-  'TWC/4242/chargerLoadInW': {'help': 'Current load of this TWC in Watt'},
+  'TWC/4242/chargerLoadInW': {'help': 'current load of this TWC in Watt'},
   'TWC/4242/state': {'help': 'TWC state code'},
-  'TWC/4242/power': {'help': 'Power in Watt'},
-  'TWC/4242/carsCharging': {'help': 'Number of cars currently charging'},
-  'TWC/4242/lifetimekWh': {'help': 'Lifetime usage in kWh'},
-  'TWC/4242/voltagePhaseA': {'name': 'voltage', 'help': 'Voltage in V', 'labels': {'phase': 'L1'}},
-  'TWC/4242/voltagePhaseB': {'name': 'voltage', 'help': 'Voltage in V', 'labels': {'phase': 'L2'}},
-  'TWC/4242/voltagePhaseC': {'name': 'voltage', 'help': 'Voltage in V', 'labels': {'phase': 'L3'}},
+  'TWC/4242/power': {'help': 'power in Watt'},
+  'TWC/4242/carsCharging': {'help': 'number of cars currently charging'},
+  'TWC/4242/lifetimekWh': {'help': 'lifetime usage in kWh'},
+  'TWC/4242/voltagePhaseA': {'name': 'voltage', 'help': 'voltage in V', 'labels': {'phase': 'L1'}},
+  'TWC/4242/voltagePhaseB': {'name': 'voltage', 'help': 'voltage in V', 'labels': {'phase': 'L2'}},
+  'TWC/4242/voltagePhaseC': {'name': 'voltage', 'help': 'voltage in V', 'labels': {'phase': 'L3'}},
 }
 
 debug = False
