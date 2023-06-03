@@ -36,14 +36,17 @@ if __name__ == '__main__':
   parents = {}
   gauges = {}
   for t,v in config.mqtt_topics.items():
+    parts = t.split('/')
     name = v.get('name')
     if not name:
-      name = t.split('/')[-1:][0]
+      name = parts[-1:][0]
     description = v.get('help')
     if not description:
       description = t
     labels = v.get('labels', {})
     labels['topic'] = t
+    if len(parts) > 0:
+      labels['sensor'] = parts[1]
     if not name in parents:
       parents[name] = prom.Gauge(name, description, labels.keys())
     gauges[t] = parents[name].labels(**labels)
