@@ -58,7 +58,7 @@ if __name__ == '__main__':
   parser.add_argument("-c", "--config", help="config file to load", default="config")
   args = parser.parse_args()
   config = importlib.import_module(args.config)
-  mqtt_init()
+  client = mqtt_init()
   succes = {}
   error = {}
   parents = {}
@@ -85,10 +85,15 @@ if __name__ == '__main__':
   received_messages = prom.Gauge('received_messages', 'received messages per topic and status', ['status','topic'])
   prom.start_http_server(config.http_port)
 
+  fresh = time.time()
   while True:
     data_received = False
     time.sleep(10)
     if data_received:
       up.set(1)
+      fresh = time.time()
     else:
       up.set(0)
+      if client.state != client.mqtt_cs_connected and time.time() - fresh > 600:
+        print(f"Exiting, mqtt state = {client.state} for too long")
+        sys.exit(1)
