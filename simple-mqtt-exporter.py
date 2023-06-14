@@ -94,6 +94,6 @@ if __name__ == '__main__':
       fresh = time.time()
     else:
       up.set(0)
-      if client.state != client.mqtt_cs_connected and time.time() - fresh > 600:
-        print(f"Exiting, mqtt state = {client.state} for too long")
+      if not client.is_connected() and time.time() - fresh > 600:
+        print(f"Exiting, mqtt state = {client._state} for too long")
         sys.exit(1)
