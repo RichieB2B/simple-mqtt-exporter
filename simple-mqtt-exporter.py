@@ -26,7 +26,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
   global data_received, succes, error
   if config.debug:
-    print(f'{msg.topic}: {payload}')
+    print(f'{msg.topic}: {msg.payload}')
   if msg.topic in config.mqtt_topics:
     try:
       payload = str(msg.payload.decode("utf-8","strict"))
@@ -94,6 +94,6 @@ if __name__ == '__main__':
       fresh = time.time()
     else:
       up.set(0)
-      if not client.is_connected() and time.time() - fresh > 600:
+      if time.time() - fresh > 600:
         print(f"Exiting, mqtt state = {client._state} for too long")
         sys.exit(1)
