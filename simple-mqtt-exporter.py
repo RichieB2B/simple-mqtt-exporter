@@ -8,6 +8,19 @@ import prometheus_client as prom
 import argparse
 import importlib
 
+def smart_float(value):
+  if isinstance(value, bool):
+    if value:
+      return 1.0
+    else:
+      return 0.0
+  if isinstance(value, str):
+    if value in ('on', 'ON', 'On', 'true', 'TRUE', 'True', 'yes', 'YES', 'Yes'):
+      return 1.0
+    if value in ('off', 'OFF', 'Off', 'false', 'FALSE', 'False', 'no', 'NO', 'No'):
+      return 0.0
+  return(float(value))
+
 def on_connect(client, userdata, flags, rc):
   codes = [
     'Connection successful',
@@ -52,7 +65,7 @@ def on_message(client, userdata, msg):
         field = item['field']
         if field in content:
           try:
-            value = float(content[field])
+            value = smart_float(content[field])
           except Exception as e:
             print(f'{type(e)}: {str(e)} while decoding topic {t} field {field}')
             error[t] += 1
@@ -61,7 +74,7 @@ def on_message(client, userdata, msg):
           gauges[msg.topic + ':' + field].set(value)
     else:
       try:
-        value = float(payload)
+        value = smart_float(payload)
       except Exception as e:
         print(f'{type(e)}: {str(e)} while decoding topic {t} field {field}')
         error[t] += 1
