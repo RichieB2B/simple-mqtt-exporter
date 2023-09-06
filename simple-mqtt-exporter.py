@@ -138,7 +138,7 @@ if __name__ == '__main__':
   fresh = time.time()
   while True:
     data_received = False
-    time.sleep(10)
+    time.sleep(getattr(config, 'sleep', 10))
     if data_received:
       up.set(1)
       fresh = time.time()
