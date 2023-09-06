@@ -21,6 +21,13 @@ def smart_float(value):
       return 0.0
   return(float(value))
 
+def get_field(content, field):
+  result = content
+  for f in field.split('.'):
+    if isinstance(result, dict):
+      result = result.get(f, {})
+  return smart_float(result)
+
 def on_connect(client, userdata, flags, rc):
   codes = [
     'Connection successful',
@@ -63,15 +70,14 @@ def on_message(client, userdata, msg):
         return
       for item in config.mqtt_topics[msg.topic]:
         field = item['field']
-        if field in content:
-          try:
-            value = smart_float(content[field])
-          except Exception as e:
-            print(f'{type(e)}: {str(e)} while decoding topic {t} field {field}')
-            error[t] += 1
-            received_messages.labels(status='error', topic=msg.topic).set(error[t])
-            continue
-          gauges[msg.topic + ':' + field].set(value)
+        try:
+          value = get_field(content, field)
+        except Exception as e:
+          print(f'{type(e)}: {str(e)} while decoding topic {t} field {field}')
+          error[t] += 1
+          received_messages.labels(status='error', topic=msg.topic).set(error[t])
+          continue
+        gauges[msg.topic + ':' + field].set(value)
     else:
       try:
         value = smart_float(payload)
