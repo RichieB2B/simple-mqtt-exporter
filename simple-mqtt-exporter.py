@@ -131,6 +131,8 @@ if __name__ == '__main__':
         description = t + sep + field
       labels = i.get('labels', {})
       labels['topic'] = t
+      if field:
+        labels['field'] = field
       if len(parts) > 0:
         labels['sensor'] = parts[1]
       if not name in parents:
