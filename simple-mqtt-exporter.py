@@ -144,13 +144,18 @@ if __name__ == '__main__':
   prom.start_http_server(config.http_port)
 
   fresh = time.time()
+  stale = 0
   while True:
     data_received = False
     time.sleep(getattr(config, 'sleep', 10))
     if data_received:
       up.set(1)
       fresh = time.time()
+      stale = 0
+    elif stale < 3:
+      stale += 1
     else:
+      stale += 1
       up.set(0)
       if time.time() - fresh > 600:
         print(f"Exiting, mqtt state = {client._state} for too long")
