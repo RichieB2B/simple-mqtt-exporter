@@ -101,6 +101,8 @@ def mqtt_init():
   return client
 
 if __name__ == '__main__':
+  sys.stdout.reconfigure(line_buffering=True)
+  sys.stderr.reconfigure(line_buffering=True)
   parser = argparse.ArgumentParser()
   parser.add_argument("-c", "--config", help="config file to load", default="config")
   args = parser.parse_args()
