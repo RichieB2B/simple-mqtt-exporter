@@ -87,7 +87,8 @@ def on_message(client, userdata, msg):
         received_messages.labels(status='error', topic=msg.topic).set(error[t])
         return
       gauges[msg.topic].set(value)
-    updated.set(time.time())
+    if not msg.retain:
+      updated.set(time.time())
 
 def mqtt_init():
   client = mqtt.Client()
