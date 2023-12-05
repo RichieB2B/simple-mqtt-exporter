@@ -3,7 +3,7 @@
 mqtt_broker="127.0.0.1"
 mqtt_username="me"
 mqtt_password="secret"
-mqtt_twc_topic = "cozytouch/#"
+mqtt_topic = "cozytouch/#"
 
 # http server
 http_port = 8078

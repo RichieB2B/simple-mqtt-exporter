@@ -97,7 +97,10 @@ def mqtt_init():
   client.on_connect=on_connect
   client.on_message=on_message
   client.connect(config.mqtt_broker)
-  client.subscribe(config.mqtt_twc_topic)
+  if hasattr(config, 'mqtt_twc_topic') and not hasattr(config, 'mqtt_topic'):
+    client.subscribe(config.mqtt_twc_topic)
+  else:
+    client.subscribe(config.mqtt_topic)
   client.loop_start()
   return client
 

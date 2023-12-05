@@ -2,7 +2,7 @@
 mqtt_broker="127.0.0.1"
 #mqtt_username="user"
 #mqtt_password="pass"
-mqtt_twc_topic = "TWC/#"
+mqtt_topic = "TWC/#"
 
 # http server
 http_port = 8086
