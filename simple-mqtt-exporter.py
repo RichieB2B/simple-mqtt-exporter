@@ -151,13 +151,18 @@ if __name__ == '__main__':
 
   fresh = time.time()
   stale = 0
+  startup = True
   while True:
     data_received = False
-    time.sleep(getattr(config, 'sleep', 10))
+    if startup:
+      time.sleep(10)
+    else:
+      time.sleep(getattr(config, 'sleep', 10))
     if data_received:
       up.set(1)
       fresh = time.time()
       stale = 0
+      startup = False
     elif stale < 3:
       stale += 1
     else:
