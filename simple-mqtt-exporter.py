@@ -53,12 +53,12 @@ def on_message(client, userdata, msg):
   if msg.topic in config.mqtt_topics:
     try:
       payload = str(msg.payload.decode("utf-8","strict"))
-      succes[t] += 1
-      received_messages.labels(status='succes', topic=msg.topic).set(succes[t])
+      succes[msg.topic] += 1
+      received_messages.labels(status='succes', topic=msg.topic).set(succes[msg.topic])
     except Exception as e:
-      print(f'{type(e)}: {str(e)} while decoding topic {t}')
-      error[t] += 1
-      received_messages.labels(status='error', topic=msg.topic).set(error[t])
+      print(f'{type(e)}: {str(e)} while decoding topic {msg.topic}')
+      error[msg.topic] += 1
+      received_messages.labels(status='error', topic=msg.topic).set(error[msg.topic])
       return
     data_received = True
     # When the config is a list, we need to use the JSON fields in the message
@@ -66,27 +66,27 @@ def on_message(client, userdata, msg):
       try:
         content = json.loads(payload)
       except Exception as e:
-        print(f'{type(e)}: {str(e)} while decoding json topic {t}')
-        error[t] += 1
-        received_messages.labels(status='error', topic=msg.topic).set(error[t])
+        print(f'{type(e)}: {str(e)} while decoding json topic {msg.topic}')
+        error[msg.topic] += 1
+        received_messages.labels(status='error', topic=msg.topic).set(error[msg.topic])
         return
       for item in config.mqtt_topics[msg.topic]:
         field = item['field']
         try:
           value = get_field(content, field)
         except Exception as e:
-          print(f'{type(e)}: {str(e)} while decoding topic {t} field {field}')
-          error[t] += 1
-          received_messages.labels(status='error', topic=msg.topic).set(error[t])
+          print(f'{type(e)}: {str(e)} while decoding topic {msg.topic} field {field}')
+          error[msg.topic] += 1
+          received_messages.labels(status='error', topic=msg.topic).set(error[msg.topic])
           continue
         gauges[msg.topic + ':' + field].set(value)
     else:
       try:
         value = smart_float(payload)
       except Exception as e:
-        print(f'{type(e)}: {str(e)} while decoding topic {t} field {field}')
-        error[t] += 1
-        received_messages.labels(status='error', topic=msg.topic).set(error[t])
+        print(f'{type(e)}: {str(e)} while decoding topic {msg.topic} field {field}')
+        error[msg.topic] += 1
+        received_messages.labels(status='error', topic=msg.topic).set(error[msg.topic])
         return
       gauges[msg.topic].set(value)
     if not msg.retain:
