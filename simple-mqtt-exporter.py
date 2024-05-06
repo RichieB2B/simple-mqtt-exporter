@@ -56,7 +56,7 @@ def on_message(client, userdata, msg):
       succes[msg.topic] += 1
       received_messages.labels(status='succes', topic=msg.topic).set(succes[msg.topic])
     except Exception as e:
-      print(f'{type(e)}: {str(e)} while decoding topic {msg.topic}')
+      print(f'{type(e).__name__}: {str(e)} while decoding topic {msg.topic}')
       error[msg.topic] += 1
       received_messages.labels(status='error', topic=msg.topic).set(error[msg.topic])
       return
@@ -66,7 +66,7 @@ def on_message(client, userdata, msg):
       try:
         content = json.loads(payload)
       except Exception as e:
-        print(f'{type(e)}: {str(e)} while decoding json topic {msg.topic}')
+        print(f'{type(e).__name__}: {str(e)} while decoding json topic {msg.topic}')
         error[msg.topic] += 1
         received_messages.labels(status='error', topic=msg.topic).set(error[msg.topic])
         return
@@ -75,7 +75,7 @@ def on_message(client, userdata, msg):
         try:
           value = get_field(content, field)
         except Exception as e:
-          print(f'{type(e)}: {str(e)} while decoding topic {msg.topic} field {field}')
+          print(f'{type(e).__name__}: {str(e)} while decoding topic {msg.topic} field {field}')
           error[msg.topic] += 1
           received_messages.labels(status='error', topic=msg.topic).set(error[msg.topic])
           continue
@@ -84,7 +84,7 @@ def on_message(client, userdata, msg):
       try:
         value = smart_float(payload)
       except Exception as e:
-        print(f'{type(e)}: {str(e)} while decoding topic {msg.topic} field {field}')
+        print(f'{type(e).__name__}: {str(e)} while decoding topic {msg.topic} field {field}')
         error[msg.topic] += 1
         received_messages.labels(status='error', topic=msg.topic).set(error[msg.topic])
         return
@@ -152,7 +152,11 @@ if __name__ == '__main__':
         labels['sensor'] = parts[1]
       if not name in parents:
         parents[name] = prom.Gauge(name, description, labels.keys())
-      gauges[topic] = parents[name].labels(**labels)
+      try:
+        gauges[topic] = parents[name].labels(**labels)
+      except ValueError as e:
+        print(f'{type(e).__name__} while adding gauge for topic {topic}: name = {name}, labels = {labels}, error = {str(e)}')
+        sys.exit(1)
   up = prom.Gauge('up', 'client status')
   updated = prom.Gauge('updated', 'data last updated in epoch')
   received_messages = prom.Gauge('received_messages', 'received messages per topic and status', ['status','topic'])
