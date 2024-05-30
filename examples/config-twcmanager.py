@@ -1,4 +1,4 @@
-# mqtt broker where TWC published its topics
+# mqtt broker where TWC publishes its topics
 mqtt_broker="127.0.0.1"
 #mqtt_username="user"
 #mqtt_password="pass"

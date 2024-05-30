@@ -1,0 +1,11 @@
+[Unit]
+Description=Heishamon Prometheus Exporter
+After=syslog.target
+After=network-online.target
+After=mosquitto.service
+[Service]
+ExecStart=/opt/simple-mqtt-exporter/simple-mqtt-exporter.py -c config-heishamon
+Restart=always
+RestartSec=15
+[Install]
+WantedBy=multi-user.target

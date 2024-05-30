@@ -15,9 +15,9 @@ def smart_float(value):
     else:
       return 0.0
   if isinstance(value, str):
-    if value in ('on', 'ON', 'On', 'true', 'TRUE', 'True', 'yes', 'YES', 'Yes'):
+    if value in ('on', 'ON', 'On', 'true', 'TRUE', 'True', 'yes', 'YES', 'Yes', 'Online', 'online'):
       return 1.0
-    if value in ('off', 'OFF', 'Off', 'false', 'FALSE', 'False', 'no', 'NO', 'No'):
+    if value in ('off', 'OFF', 'Off', 'false', 'FALSE', 'False', 'no', 'NO', 'No', 'Offline', 'offline'):
       return 0.0
   return(float(value))
 
