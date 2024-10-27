@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import re
 import sys
 import time
 import json
@@ -28,6 +29,16 @@ def get_field(content, field):
       result = result.get(f, {})
   return smart_float(result)
 
+def regex_match(string):
+  for topic in list(config.mqtt_topics.keys()):
+    p = re.compile('^' + topic + '$')
+    if p.search(string):
+      # add regex based match to config.mqtt_topics as plain topic
+      config.mqtt_topics[string] = config.mqtt_topics[topic]
+      topic_init(string, config.mqtt_topics[topic])
+      return True
+  return False
+
 def on_connect(client, userdata, flags, rc, properties=None):
   codes = [
     'Connection successful',
@@ -50,7 +61,7 @@ def on_message(client, userdata, msg):
   global data_received, succes, error
   if config.debug:
     print(f'{msg.topic}: {msg.payload}')
-  if msg.topic in config.mqtt_topics:
+  if msg.topic in config.mqtt_topics or regex_match(msg.topic):
     try:
       payload = str(msg.payload.decode("utf-8","strict"))
       succes[msg.topic] += 1
@@ -92,6 +103,42 @@ def on_message(client, userdata, msg):
     if not msg.retain:
       updated.set(time.time())
 
+def topic_init(t, v):
+    global succes, error, gauges, parents
+    succes[t] = 0
+    error[t] = 0
+    parts = t.split('/')
+    if isinstance(v, list):
+      items = v
+      sep = ':'
+    else:
+      items = [v]
+      sep = ''
+    for i in items:
+      field = i.get('field', '')
+      topic = t + sep + field
+      name = i.get('name')
+      if not name:
+        name = parts[-1:][0]
+      description = i.get('help')
+      if not description:
+        description = t + sep + field
+      labels = i.get('labels', {})
+      labels['topic'] = t
+      if field:
+        labels['field'] = field
+      if len(parts) > 0 and not labels.get('sensor'):
+        labels['sensor'] = parts[1]
+      if len(parts) > 1 and not labels.get('device'):
+        labels['device'] = parts[2]
+      if not name in parents:
+        parents[name] = prom.Gauge(name, description, labels.keys())
+      try:
+        gauges[topic] = parents[name].labels(**labels)
+      except ValueError as e:
+        print(f'{type(e).__name__} while adding gauge for topic {topic}: name = {name}, labels = {labels}, error = {str(e)}')
+        sys.exit(1)
+
 def mqtt_init():
   if hasattr(mqtt, 'CallbackAPIVersion'):
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -126,37 +173,9 @@ if __name__ == '__main__':
   parents = {}
   gauges = {}
   for t,v in config.mqtt_topics.items():
-    succes[t] = 0
-    error[t] = 0
-    parts = t.split('/')
-    if isinstance(v, list):
-      items = v
-      sep = ':'
-    else:
-      items = [v]
-      sep = ''
-    for i in items:
-      field = i.get('field', '')
-      topic = t + sep + field
-      name = i.get('name')
-      if not name:
-        name = parts[-1:][0]
-      description = i.get('help')
-      if not description:
-        description = t + sep + field
-      labels = i.get('labels', {})
-      labels['topic'] = t
-      if field:
-        labels['field'] = field
-      if len(parts) > 0:
-        labels['sensor'] = parts[1]
-      if not name in parents:
-        parents[name] = prom.Gauge(name, description, labels.keys())
-      try:
-        gauges[topic] = parents[name].labels(**labels)
-      except ValueError as e:
-        print(f'{type(e).__name__} while adding gauge for topic {topic}: name = {name}, labels = {labels}, error = {str(e)}')
-        sys.exit(1)
+    # Do not initialize regex topics
+    if not '*' in t:
+      topic_init(t, v)
   up = prom.Gauge('up', 'client status')
   updated = prom.Gauge('updated', 'data last updated in epoch')
   received_messages = prom.Gauge('received_messages', 'received messages per topic and status', ['status','topic'])
