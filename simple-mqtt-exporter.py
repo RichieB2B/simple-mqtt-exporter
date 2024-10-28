@@ -20,7 +20,7 @@ def smart_float(value):
       return 1.0
     if value in ('off', 'OFF', 'Off', 'false', 'FALSE', 'False', 'no', 'NO', 'No', 'Offline', 'offline'):
       return 0.0
-  return(float(value))
+  return float(value)
 
 def get_field(content, field):
   result = content
