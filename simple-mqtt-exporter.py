@@ -174,9 +174,9 @@ def topic_init(t, v):
         labels["topic"] = t
         if field:
             labels["field"] = field
-        if len(parts) > 0 and not labels.get("sensor"):
+        if len(parts) > 1 and not labels.get("sensor"):
             labels["sensor"] = parts[1]
-        if len(parts) > 1 and not labels.get("device"):
+        if len(parts) > 2 and not labels.get("device"):
             labels["device"] = parts[2]
         if not name in parents:
             parents[name] = prom.Gauge(name, description, labels.keys())
