@@ -88,15 +88,15 @@ def on_connect(client, userdata, flags, rc, properties=None):
 
 
 def on_message(client, userdata, msg):
-    global data_received, succes, error
+    global data_received, success, error
     if config.debug:
         print(f"{msg.topic}: {msg.payload}")
     if msg.topic in config.mqtt_topics or regex_match(msg.topic):
         try:
             payload = str(msg.payload.decode("utf-8", "strict"))
-            succes[msg.topic] += 1
-            received_messages.labels(status="succes", topic=msg.topic).set(
-                succes[msg.topic]
+            success[msg.topic] += 1
+            received_messages.labels(status="success", topic=msg.topic).set(
+                success[msg.topic]
             )
         except Exception as e:
             print(f"{type(e).__name__}: {str(e)} while decoding topic {msg.topic}")
@@ -151,8 +151,8 @@ def on_message(client, userdata, msg):
 
 
 def topic_init(t, v):
-    global succes, error, gauges, parents
-    succes[t] = 0
+    global success, error, gauges, parents
+    success[t] = 0
     error[t] = 0
     parts = t.split("/")
     if isinstance(v, list):
@@ -218,7 +218,7 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--config", help="config file to load", default="config")
     args = parser.parse_args()
     config = importlib.import_module(args.config)
-    succes = {}
+    success = {}
     error = {}
     parents = {}
     gauges = {}
