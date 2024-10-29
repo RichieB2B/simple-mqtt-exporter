@@ -218,7 +218,6 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--config", help="config file to load", default="config")
     args = parser.parse_args()
     config = importlib.import_module(args.config)
-    client = mqtt_init()
     succes = {}
     error = {}
     parents = {}
@@ -234,6 +233,7 @@ if __name__ == "__main__":
         "received messages per topic and status",
         ["status", "topic"],
     )
+    client = mqtt_init()
     prom.start_http_server(config.http_port)
 
     fresh = time.time()
