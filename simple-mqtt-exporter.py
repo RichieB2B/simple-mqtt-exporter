@@ -200,7 +200,7 @@ def mqtt_init():
     client.on_message = on_message
     try:
         client.connect(config.mqtt_broker)
-    except TimeoutError as e:
+    except (TimeoutError, OSError) as e:
         print(f"{type(e).__name__} connecting to {config.mqtt_broker}: {e}")
         sys.exit(1)
     if hasattr(config, "mqtt_twc_topic") and not hasattr(config, "mqtt_topic"):
