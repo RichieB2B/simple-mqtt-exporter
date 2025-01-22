@@ -138,7 +138,7 @@ def on_message(client, userdata, msg):
                 value = smart_float(payload)
             except Exception as e:
                 print(
-                    f"{type(e).__name__}: {str(e)} while decoding topic {msg.topic} field {field}"
+                    f"{type(e).__name__}: {str(e)} while decoding topic {msg.topic} with payload {payload}"
                 )
                 error[msg.topic] += 1
                 received_messages.labels(status="error", topic=msg.topic).set(
