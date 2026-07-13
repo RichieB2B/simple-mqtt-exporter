@@ -12,7 +12,7 @@ import prometheus_client as prom
 
 
 def smart_float(value):
-    if isinstance(value, bool):
+    if isinstance(value, bool | dict | list):
         if value:
             return 1.0
         else:
